@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.example.coolweather.db.City;
 import com.example.coolweather.db.County;
 import com.example.coolweather.db.Province;
+import com.example.coolweather.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +17,36 @@ import org.json.JSONObject;
  */
 
 public class Utility {
+
+
+    /**
+     * j将返回的JSON数据解析成weather实体类
+     *
+     * 通过JSONObject和JSONArray将天气数据的主体内容解析出来，即如下内容：
+     *      {
+     *         "status":"ok",
+     *         "basic":{},
+     *         "aqi":{},
+     *         "now":{},
+     *         "suggestion":{},
+     *         "daily_forecast":[]
+     *      }
+     */
+
+
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /*
     解析和处理服务器返回的省级数据
@@ -72,11 +104,11 @@ public class Utility {
         if (!TextUtils.isEmpty(response)) {
             try {
                 JSONArray allCointies = new JSONArray(response);
-                for (int i = 0 ; i <allCointies.length() ; i++ ) {
+                for (int i = 0 ; i < allCointies.length() ; i++ ) {
                     JSONObject countyObject = allCointies.getJSONObject(i);
                     County county = new County();
                     county.setCountyName(countyObject.getString("name"));
-                    county.setCityId(countyObject.getInt("id"));
+                    county.setWeatherId(countyObject.getString("weather_id"));
                     county.setCityId(cityId);
                     county.save();
                 }

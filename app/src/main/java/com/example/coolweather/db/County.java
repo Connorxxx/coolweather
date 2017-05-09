@@ -8,9 +8,12 @@ import org.litepal.crud.DataSupport;
 
 public class County extends DataSupport {
     private int id;
-    private String countyName;  //县名字
-    private String countyWeather;  //县所对应天气id
-    private int cityId;  //当前所属市的id
+
+    private String countyName;
+
+    private String weatherId;
+
+    private int cityId;
 
     public int getId() {
         return id;
@@ -28,12 +31,12 @@ public class County extends DataSupport {
         this.countyName = countyName;
     }
 
-    public String getCountyWeather() {
-        return countyWeather;
+    public String getWeatherId() {
+        return weatherId;
     }
 
-    public void setCountyWeather(String countyWeather) {
-        this.countyWeather = countyWeather;
+    public void setWeatherId(String weatherId) {
+        this.weatherId = weatherId;
     }
 
     public int getCityId() {
