@@ -48,6 +48,10 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView carWashText;   //洗车建议
     private TextView sportText;   //运动建议
     private ImageView bingPicImg;
+    public SwipeRefreshLayout swipeRefresh;
+    private String mWeatherId;  //用于记录城市天气的id
+    public DrawerLayout drawerLayout;
+    private Button navButton;
 
 
 
@@ -87,6 +91,10 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText = (TextView) findViewById(R.id.car_wash_text);
         sportText = (TextView) findViewById(R.id.sport_text);
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navButton = (Button) findViewById(R.id.nav_button);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);//下拉颜色
 
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -94,13 +102,28 @@ public class WeatherActivity extends AppCompatActivity {
         if (weatherString != null) {
             //有缓存直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
+            mWeatherId = weather.basic.weatherId;  //定义变量，用于记录城市天气的id
             showWeatherInfo(weather);
         }else {
             //无缓存时去服务器查询天气
-            String weatherId = getIntent().getStringExtra("weather_id");//weather
+            mWeatherId = getIntent().getStringExtra("weather_id");//weather
             weatherLayout.setVisibility(View.INVISIBLE);//请求数据时将ScrollView隐藏
-            requestWeather(weatherId);
+            requestWeather(mWeatherId);
         }
+        //设置下拉监听器，调用requestWeather方法请求天气id
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestWeather(mWeatherId);
+            }
+        });
+
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);//打开滑动菜单
+            }
+        });
 
         //加载必应每日一图
         String bingPic = prefs.getString("bing_pic",null);
@@ -141,6 +164,8 @@ public class WeatherActivity extends AppCompatActivity {
                         }else {
                             Toast.makeText(WeatherActivity.this,"获取天气失败",Toast.LENGTH_SHORT).show();
                         }
+                        //结束下拉，隐藏下拉进度条
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
 
